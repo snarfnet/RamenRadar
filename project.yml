@@ -40,8 +40,8 @@ targets:
     info:
       path: RamenRadar/Info.plist
       properties:
-        CFBundleName: RamenRadar
-        CFBundleDisplayName: RamenRadar
+        CFBundleName: MenNavi
+        CFBundleDisplayName: 麺ナビ
         CFBundleIconName: AppIcon
         LSRequiresIPhoneOS: true
         UILaunchScreen: {}

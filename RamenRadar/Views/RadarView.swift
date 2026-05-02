@@ -66,7 +66,7 @@ struct RadarView: View {
     private var headerView: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
-                Text("RAMEN RADAR")
+                Text("麺ナビ")
                     .font(.system(size: 22, weight: .black, design: .monospaced))
                     .foregroundColor(AppTheme.neonRed)
                 Text(viewModel.timeSlotMessage)
