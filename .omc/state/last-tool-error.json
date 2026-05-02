@@ -1,7 +1,7 @@
 {
   "tool_name": "Bash",
-  "tool_input_preview": "{\"command\":\"python -c \\\"\\nimport jwt, time, requests, json, sys\\nsys.stdout.reconfigure(encoding='utf-8')\\n\\nKEY_ID = 'WDXGY9WX55'\\nISSUER = '2be0734f-943a-4d61-9dc9-5d9045c46fec'\\np8 = open('C:/Users...",
-  "error": "Exit code 1\n=== Register Bundle ID ===\r\nBundle ID: 201\r\nBundle ID registered: XVCTA4GAG5\r\n\r\n=== Create App ===\r\nCreate App: 403\r\n{\r\n  \"errors\" : [ {\r\n    \"id\" : \"7310b703-b35e-4ab4-a9b6-54d7a43a9f0c\",\r\n    \"status\" : \"403\",\r\n    \"code\" : \"FORBIDDEN_ERROR\",\r\n    \"title\" : \"The given operation is not allowed\",\r\n    \"detail\" : \"The resource 'apps' does not allow 'CREATE'. Allowed operations are: GET_COLLECTION, GET_INSTANCE, UPDATE\"\r\n  } ]\r\n}",
-  "timestamp": "2026-05-02T01:54:32.206Z",
+  "tool_input_preview": "{\"command\":\"cd C:/Users/Windows/RamenRadar && gh run watch 25242681498 --exit-status 2>&1\",\"timeout\":600000,\"description\":\"Watch RamenRadar build progress\"}",
+  "error": "Exit code 1\nRefreshing run status every 3 seconds. Press Ctrl+C to quit.\n\n* main Build and Upload to App Store · 25242681498\nTriggered via workflow_dispatch less than a minute ago\n\nJOBS\n* build (ID 74021346744)\n  ✓ Set up job\n  * Run actions/checkout@v4\n  * Select Xcode 26\n  * Install XcodeGen\n  * Set build number\n  * Generate Xcode project\n  * Import Distribution Certificate\n  * Set up ASC API Key\n  * Build Archive\n  * Export IPA\n  * Upload IPA\n  * Install PyJWT\n  * Submit for Review\n  * Post R...",
+  "timestamp": "2026-05-02T03:29:10.000Z",
   "retry_count": 1
 }
