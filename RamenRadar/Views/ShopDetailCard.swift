@@ -7,6 +7,7 @@ struct ShopDetailCard: View {
 
     @State private var sonarScale: CGFloat = 0.5
     @State private var sonarOpacity: Double = 1.0
+    @State private var showMapSheet = false
 
     var body: some View {
         ZStack {
@@ -117,7 +118,7 @@ struct ShopDetailCard: View {
 
                         // Navigate button
                         Button {
-                            openGoogleMaps()
+                            showMapSheet = true
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "location.fill")
@@ -132,6 +133,11 @@ struct ShopDetailCard: View {
                                     .fill(AppTheme.neonRed)
                                     .shadow(color: AppTheme.neonRed.opacity(0.4), radius: 8)
                             )
+                        }
+                        .confirmationDialog("マップアプリを選択", isPresented: $showMapSheet, titleVisibility: .visible) {
+                            Button("Apple マップ") { openAppleMaps() }
+                            Button("Google マップ") { openGoogleMaps() }
+                            Button("キャンセル", role: .cancel) {}
                         }
                     }
                     .padding(20)
@@ -170,6 +176,13 @@ struct ShopDetailCard: View {
         if shop.congestion > 0.7 { return AppTheme.neonRed }
         if shop.congestion > 0.4 { return AppTheme.neonYellow }
         return AppTheme.neonBlue
+    }
+
+    private func openAppleMaps() {
+        let lat = shop.coordinate.latitude
+        let lng = shop.coordinate.longitude
+        let url = URL(string: "https://maps.apple.com/?daddr=\(lat),\(lng)&dirflg=w")!
+        UIApplication.shared.open(url)
     }
 
     private func openGoogleMaps() {
