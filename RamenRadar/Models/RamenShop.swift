@@ -7,20 +7,20 @@ struct RamenShop: Identifiable {
     let nameEn: String
     let soupType: SoupType
     let rating: Double
-    let congestion: Double // 0.0 - 1.0
+    let congestion: Double
     let coordinate: CLLocationCoordinate2D
-    let distance: Double // meters
+    let distance: Double
     let walkMinutes: Int
     let isOpenLateNight: Bool
     let priceRange: PriceRange
-    let imageURL: String?
+    let note: String
 
     var congestionLabel: CongestionLabel {
-        if congestion > 0.7 && rating > 4.0 {
+        if congestion > 0.72 && rating > 4.2 {
             return .worthWaiting
-        } else if congestion > 0.7 {
+        } else if congestion > 0.72 {
             return .avoidNow
-        } else if rating > 4.0 {
+        } else if rating > 4.1 {
             return .chanceNow
         } else {
             return .normal
@@ -28,10 +28,10 @@ struct RamenShop: Identifiable {
     }
 
     var dotColor: DotColor {
-        if rating >= 4.0 { return .popular }
-        if soupType == .shio || soupType == .shoyu { return .light }
+        if congestion > 0.72 { return .hot }
         if isOpenLateNight { return .lateNight }
-        return .popular
+        if soupType == .shio || soupType == .shoyu { return .light }
+        return .standard
     }
 }
 
@@ -43,18 +43,18 @@ enum SoupType: String, CaseIterable {
     case jiro = "二郎系"
     case tsukemen = "つけ麺"
     case tantan = "担々麺"
-    case other = "その他"
+    case other = "個性派"
 
     var icon: String {
         switch self {
-        case .tonkotsu: return "🍖"
-        case .shoyu: return "🫘"
-        case .miso: return "🫕"
-        case .shio: return "🧂"
-        case .jiro: return "💪"
-        case .tsukemen: return "🥢"
-        case .tantan: return "🌶️"
-        case .other: return "🍜"
+        case .tonkotsu: return "bowl.fill"
+        case .shoyu: return "drop.fill"
+        case .miso: return "flame.fill"
+        case .shio: return "sparkles"
+        case .jiro: return "mountain.2.fill"
+        case .tsukemen: return "takeoutbag.and.cup.and.straw.fill"
+        case .tantan: return "bolt.fill"
+        case .other: return "star.fill"
         }
     }
 }
@@ -66,32 +66,33 @@ enum PriceRange: String, CaseIterable {
 }
 
 enum CongestionLabel {
-    case worthWaiting  // 高混雑 + 高評価
-    case avoidNow      // 高混雑 + 普通評価
-    case chanceNow     // 低混雑 + 高評価
-    case normal        // 低混雑 + 普通評価
+    case worthWaiting
+    case avoidNow
+    case chanceNow
+    case normal
 
     var text: String {
         switch self {
         case .worthWaiting: return "並ぶ価値あり"
-        case .avoidNow: return "今は避けろ"
-        case .chanceNow: return "今がチャンス"
-        case .normal: return "普通に入れる"
+        case .avoidNow: return "今は混み気味"
+        case .chanceNow: return "今が狙い目"
+        case .normal: return "入りやすい"
         }
     }
 
     var icon: String {
         switch self {
-        case .worthWaiting: return "🔥"
-        case .avoidNow: return "⏳"
-        case .chanceNow: return "✨"
-        case .normal: return "👍"
+        case .worthWaiting: return "flame.fill"
+        case .avoidNow: return "clock.badge.exclamationmark"
+        case .chanceNow: return "checkmark.seal.fill"
+        case .normal: return "person.2.fill"
         }
     }
 }
 
 enum DotColor {
-    case popular    // Red - popular shops
-    case light      // Blue - light flavor
-    case lateNight  // Yellow - late night
+    case hot
+    case light
+    case lateNight
+    case standard
 }

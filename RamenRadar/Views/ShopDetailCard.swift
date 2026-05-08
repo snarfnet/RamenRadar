@@ -5,14 +5,11 @@ struct ShopDetailCard: View {
     let shop: RamenShop
     let onDismiss: () -> Void
 
-    @State private var sonarScale: CGFloat = 0.5
-    @State private var sonarOpacity: Double = 1.0
     @State private var showMapSheet = false
 
     var body: some View {
         ZStack {
-            // Dimmed background
-            Color.black.opacity(0.6)
+            Color.black.opacity(0.66)
                 .ignoresSafeArea()
                 .onTapGesture { onDismiss() }
 
@@ -20,162 +17,120 @@ struct ShopDetailCard: View {
                 Spacer()
 
                 VStack(spacing: 0) {
-                    // Drag handle
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(AppTheme.textSecondary.opacity(0.4))
-                        .frame(width: 40, height: 5)
+                        .fill(AppTheme.textSecondary.opacity(0.45))
+                        .frame(width: 42, height: 5)
                         .padding(.top, 12)
 
-                    // Sonar pulse effect at top
-                    ZStack {
-                        // Ramen image placeholder
-                        ZStack {
-                            AppTheme.cardBackgroundLight
-                            Text(shop.soupType.icon)
-                                .font(.system(size: 64))
-                        }
-                        .frame(height: 160)
-                        .clipShape(RoundedRectangle(cornerRadius: 0))
+                    ZStack(alignment: .bottomLeading) {
+                        Image("ramen-hero")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 176)
+                            .clipped()
 
-                        // Sonar ripple
-                        Circle()
-                            .stroke(AppTheme.neonRed.opacity(sonarOpacity * 0.5), lineWidth: 2)
-                            .scaleEffect(sonarScale)
-                            .frame(width: 60, height: 60)
+                        LinearGradient(colors: [.clear, .black.opacity(0.78)], startPoint: .top, endPoint: .bottom)
+
+                        VStack(alignment: .leading, spacing: 5) {
+                            Label(shop.soupType.rawValue, systemImage: shop.soupType.icon)
+                                .font(.system(size: 12, weight: .black))
+                                .foregroundColor(AppTheme.noodle)
+                            Text(shop.name)
+                                .font(.system(size: 24, weight: .black, design: .rounded))
+                                .foregroundColor(AppTheme.textPrimary)
+                        }
+                        .padding(18)
                     }
+                    .frame(height: 176)
 
-                    // Shop info
-                    VStack(spacing: 12) {
-                        // Name & rating
-                        HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(shop.name)
-                                    .font(.system(size: 20, weight: .bold))
-                                    .foregroundColor(AppTheme.textPrimary)
-                                Text(shop.soupType.rawValue)
-                                    .font(.system(size: 14, weight: .medium))
-                                    .foregroundColor(AppTheme.neonYellow)
-                            }
-
-                            Spacer()
-
-                            // Rating badge
-                            HStack(spacing: 2) {
-                                Image(systemName: "star.fill")
-                                    .font(.system(size: 12))
-                                Text(String(format: "%.1f", shop.rating))
-                                    .font(.system(size: 16, weight: .bold, design: .monospaced))
-                            }
-                            .foregroundColor(AppTheme.neonYellow)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule()
-                                    .fill(AppTheme.neonYellow.opacity(0.15))
-                            )
+                    VStack(spacing: 16) {
+                        HStack(spacing: 10) {
+                            metric(icon: "star.fill", value: String(format: "%.1f", shop.rating), label: "評価", color: AppTheme.noodle)
+                            metric(icon: "figure.walk", value: "\(shop.walkMinutes)分", label: "徒歩", color: AppTheme.teal)
+                            metric(icon: "yensign.circle.fill", value: shop.priceRange.rawValue, label: "価格", color: AppTheme.broth)
                         }
 
-                        // Stats row
-                        HStack(spacing: 16) {
-                            statItem(icon: "figure.walk", value: "徒歩\(shop.walkMinutes)分", color: AppTheme.textPrimary)
-                            statItem(icon: "yensign.circle", value: shop.priceRange.rawValue, color: AppTheme.textPrimary)
-                            if shop.isOpenLateNight {
-                                statItem(icon: "moon.fill", value: "深夜OK", color: AppTheme.neonYellow)
-                            }
-                        }
+                        Text(shop.note)
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(AppTheme.textSecondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                        // Congestion bar
-                        VStack(alignment: .leading, spacing: 6) {
+                        VStack(alignment: .leading, spacing: 7) {
                             HStack {
-                                Text("混雑度")
-                                    .font(.system(size: 12, weight: .medium))
+                                Text("混雑レベル")
+                                    .font(.system(size: 12, weight: .bold))
                                     .foregroundColor(AppTheme.textSecondary)
                                 Spacer()
-                                Text("\(shop.congestionLabel.icon) \(shop.congestionLabel.text)")
-                                    .font(.system(size: 12, weight: .bold))
+                                Label(shop.congestionLabel.text, systemImage: shop.congestionLabel.icon)
+                                    .font(.system(size: 12, weight: .black))
                                     .foregroundColor(congestionColor)
                             }
 
                             GeometryReader { geo in
                                 ZStack(alignment: .leading) {
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(AppTheme.cardBackgroundLight)
-                                        .frame(height: 8)
-
-                                    RoundedRectangle(cornerRadius: 4)
-                                        .fill(
-                                            LinearGradient(
-                                                colors: [AppTheme.neonBlue, AppTheme.neonYellow, AppTheme.neonRed],
-                                                startPoint: .leading,
-                                                endPoint: .trailing
-                                            )
-                                        )
-                                        .frame(width: geo.size.width * shop.congestion, height: 8)
+                                    Capsule().fill(AppTheme.cardLight)
+                                    Capsule()
+                                        .fill(LinearGradient(colors: [AppTheme.teal, AppTheme.broth, AppTheme.lantern], startPoint: .leading, endPoint: .trailing))
+                                        .frame(width: geo.size.width * shop.congestion)
                                 }
                             }
-                            .frame(height: 8)
+                            .frame(height: 9)
                         }
 
-                        // Navigate button
                         Button {
                             showMapSheet = true
                         } label: {
-                            HStack(spacing: 8) {
-                                Image(systemName: "location.fill")
-                                Text("ここに行く（徒歩\(shop.walkMinutes)分）")
-                                    .font(.system(size: 16, weight: .bold))
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(AppTheme.neonRed)
-                                    .shadow(color: AppTheme.neonRed.opacity(0.4), radius: 8)
-                            )
+                            Label("ここへ行く  徒歩\(shop.walkMinutes)分", systemImage: "location.fill")
+                                .font(.system(size: 16, weight: .black, design: .rounded))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 15)
+                                .background(
+                                    LinearGradient(colors: [AppTheme.lantern, AppTheme.chili], startPoint: .leading, endPoint: .trailing)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
+                                .shadow(color: AppTheme.lantern.opacity(0.35), radius: 14, y: 8)
                         }
                         .confirmationDialog("マップアプリを選択", isPresented: $showMapSheet, titleVisibility: .visible) {
-                            Button("Apple マップ") { openAppleMaps() }
-                            Button("Google マップ") { openGoogleMaps() }
+                            Button("Appleマップ") { openAppleMaps() }
+                            Button("Googleマップ") { openGoogleMaps() }
                             Button("キャンセル", role: .cancel) {}
                         }
                     }
-                    .padding(20)
+                    .padding(18)
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(AppTheme.cardBackground)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(AppTheme.neonRed.opacity(0.2), lineWidth: 1)
-                        )
-                )
+                .background(AppTheme.card)
+                .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 26, style: .continuous).stroke(AppTheme.border, lineWidth: 1))
                 .padding(.horizontal, 16)
-                .padding(.bottom, 40)
-            }
-        }
-        .onAppear {
-            withAnimation(.easeOut(duration: 0.8)) {
-                sonarScale = 3.0
-                sonarOpacity = 0
+                .padding(.bottom, 38)
             }
         }
     }
 
-    private func statItem(icon: String, value: String, color: Color) -> some View {
-        HStack(spacing: 4) {
+    private func metric(icon: String, value: String, label: String, color: Color) -> some View {
+        VStack(spacing: 5) {
             Image(systemName: icon)
-                .font(.system(size: 12))
+                .foregroundColor(color)
             Text(value)
-                .font(.system(size: 13, weight: .medium))
+                .font(.system(size: 14, weight: .black, design: .rounded))
+                .foregroundColor(AppTheme.textPrimary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+            Text(label)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundColor(AppTheme.textSecondary)
         }
-        .foregroundColor(color)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 12)
+        .background(AppTheme.cardLight.opacity(0.7))
+        .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
     }
 
     private var congestionColor: Color {
-        if shop.congestion > 0.7 { return AppTheme.neonRed }
-        if shop.congestion > 0.4 { return AppTheme.neonYellow }
-        return AppTheme.neonBlue
+        if shop.congestion > 0.7 { return AppTheme.lantern }
+        if shop.congestion > 0.4 { return AppTheme.broth }
+        return AppTheme.teal
     }
 
     private func openAppleMaps() {

@@ -6,7 +6,7 @@ struct FilterView: View {
 
     var body: some View {
         ZStack {
-            Color.black.opacity(0.6)
+            Color.black.opacity(0.66)
                 .ignoresSafeArea()
                 .onTapGesture { onDismiss() }
 
@@ -14,31 +14,24 @@ struct FilterView: View {
                 Spacer()
 
                 VStack(alignment: .leading, spacing: 20) {
-                    // Handle
                     HStack {
                         Spacer()
                         RoundedRectangle(cornerRadius: 3)
-                            .fill(AppTheme.textSecondary.opacity(0.4))
-                            .frame(width: 40, height: 5)
+                            .fill(AppTheme.textSecondary.opacity(0.45))
+                            .frame(width: 42, height: 5)
                         Spacer()
                     }
-                    .padding(.top, 12)
 
-                    Text("フィルター")
-                        .font(.system(size: 18, weight: .bold))
+                    Text("条件を絞り込む")
+                        .font(.system(size: 22, weight: .black, design: .rounded))
                         .foregroundColor(AppTheme.textPrimary)
-                        .padding(.horizontal, 20)
 
-                    // Soup type chips
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("スープ")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(AppTheme.textSecondary)
-
+                    filterSection(title: "スープ") {
                         FlowLayout(spacing: 8) {
                             ForEach(SoupType.allCases, id: \.self) { soup in
                                 chipButton(
-                                    text: "\(soup.icon) \(soup.rawValue)",
+                                    icon: soup.icon,
+                                    text: soup.rawValue,
                                     isSelected: viewModel.selectedSoupTypes.contains(soup)
                                 ) {
                                     if viewModel.selectedSoupTypes.contains(soup) {
@@ -50,35 +43,22 @@ struct FilterView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
 
-                    // Price range chips
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("価格帯")
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(AppTheme.textSecondary)
-
+                    filterSection(title: "価格帯") {
                         HStack(spacing: 8) {
                             ForEach(PriceRange.allCases, id: \.self) { price in
-                                chipButton(
-                                    text: price.rawValue,
-                                    isSelected: viewModel.selectedPriceRange == price
-                                ) {
+                                chipButton(icon: "yensign", text: price.rawValue, isSelected: viewModel.selectedPriceRange == price) {
                                     viewModel.selectedPriceRange = viewModel.selectedPriceRange == price ? nil : price
                                 }
                             }
                         }
                     }
-                    .padding(.horizontal, 20)
 
-                    // Toggle options
                     VStack(spacing: 12) {
                         toggleRow(icon: "moon.fill", text: "深夜営業のみ", isOn: $viewModel.lateNightOnly)
-                        toggleRow(icon: "person.2.slash", text: "空いてる店優先", isOn: $viewModel.lowCongestionFirst)
+                        toggleRow(icon: "person.2.slash.fill", text: "空いている店を優先", isOn: $viewModel.lowCongestionFirst)
                     }
-                    .padding(.horizontal, 20)
 
-                    // Reset button
                     Button {
                         viewModel.selectedSoupTypes.removeAll()
                         viewModel.selectedPriceRange = nil
@@ -86,67 +66,69 @@ struct FilterView: View {
                         viewModel.lowCongestionFirst = false
                     } label: {
                         Text("リセット")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.system(size: 14, weight: .black))
                             .foregroundColor(AppTheme.textSecondary)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(AppTheme.textSecondary.opacity(0.3), lineWidth: 1)
-                            )
+                            .padding(.vertical, 13)
+                            .overlay(RoundedRectangle(cornerRadius: 14).stroke(AppTheme.border, lineWidth: 1))
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 40)
                 }
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(AppTheme.cardBackground)
-                )
+                .padding(20)
+                .padding(.bottom, 28)
+                .background(AppTheme.card)
+                .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 28, style: .continuous).stroke(AppTheme.border, lineWidth: 1))
             }
+            .padding(.horizontal, 16)
         }
     }
 
-    private func chipButton(text: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+    private func filterSection<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(title)
+                .font(.system(size: 13, weight: .black))
+                .foregroundColor(AppTheme.noodle)
+            content()
+        }
+    }
+
+    private func chipButton(icon: String, text: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(text)
-                .font(.system(size: 13, weight: .medium))
+            Label(text, systemImage: icon)
+                .font(.system(size: 13, weight: .bold))
                 .foregroundColor(isSelected ? .white : AppTheme.textSecondary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule()
-                        .fill(isSelected ? AppTheme.neonRed : AppTheme.cardBackgroundLight)
-                        .overlay(
-                            Capsule()
-                                .stroke(isSelected ? AppTheme.neonRed : AppTheme.textSecondary.opacity(0.2), lineWidth: 1)
-                        )
-                )
+                .padding(.horizontal, 13)
+                .padding(.vertical, 9)
+                .background(isSelected ? AppTheme.lantern : AppTheme.cardLight)
+                .clipShape(Capsule())
+                .overlay(Capsule().stroke(isSelected ? AppTheme.chili.opacity(0.7) : AppTheme.border, lineWidth: 1))
         }
     }
 
     private func toggleRow(icon: String, text: String, isOn: Binding<Bool>) -> some View {
         HStack {
             Image(systemName: icon)
-                .foregroundColor(AppTheme.neonYellow)
-                .font(.system(size: 14))
+                .foregroundColor(AppTheme.noodle)
+                .frame(width: 28)
             Text(text)
-                .font(.system(size: 14, weight: .medium))
+                .font(.system(size: 14, weight: .bold))
                 .foregroundColor(AppTheme.textPrimary)
             Spacer()
             Toggle("", isOn: isOn)
-                .tint(AppTheme.neonRed)
+                .tint(AppTheme.lantern)
                 .labelsHidden()
         }
+        .padding(12)
+        .background(AppTheme.cardLight.opacity(0.72))
+        .clipShape(RoundedRectangle(cornerRadius: 15, style: .continuous))
     }
 }
 
-// Simple flow layout for chips
 struct FlowLayout: Layout {
     var spacing: CGFloat = 8
 
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        let result = arrange(proposal: proposal, subviews: subviews)
-        return result.size
+        arrange(proposal: proposal, subviews: subviews).size
     }
 
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {

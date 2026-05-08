@@ -10,31 +10,29 @@ struct RadarView: View {
 
     var body: some View {
         ZStack {
-            AppTheme.darkNavy.ignoresSafeArea()
+            AppTheme.backgroundGradient.ignoresSafeArea()
+            Image("ramen-hero")
+                .resizable()
+                .scaledToFill()
+                .frame(height: 260)
+                .clipped()
+                .overlay(
+                    LinearGradient(colors: [.black.opacity(0.05), AppTheme.ink.opacity(0.92)], startPoint: .top, endPoint: .bottom)
+                )
+                .ignoresSafeArea(edges: .top)
+                .frame(maxHeight: .infinity, alignment: .top)
 
-            VStack(spacing: 0) {
-                // Header
-                headerView
-
-                // Top carousel - now hot shops
-                hotShopsCarousel
-
-                Spacer(minLength: 8)
-
-                // Radar
-                radarCircle
-                    .padding(.horizontal, 20)
-
-                Spacer(minLength: 8)
-
-                // Bottom hint
-                Text("タップで詳細 | フィルターで絞り込み")
-                    .font(.system(size: 12))
-                    .foregroundColor(AppTheme.textSecondary)
-                    .padding(.bottom, 60)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 18) {
+                    headerView
+                    hotShopsCarousel
+                    radarPanel
+                    quickTips
+                }
+                .padding(.horizontal, 18)
+                .padding(.bottom, 118)
             }
 
-            // Detail card overlay
             if let shop = showDetail {
                 ShopDetailCard(shop: shop) {
                     withAnimation(.spring(response: 0.3)) {
@@ -45,7 +43,6 @@ struct RadarView: View {
                 .zIndex(10)
             }
 
-            // Filter sheet
             if showFilter {
                 FilterView(viewModel: viewModel) {
                     withAnimation(.spring(response: 0.3)) {
@@ -61,17 +58,16 @@ struct RadarView: View {
         }
     }
 
-    // MARK: - Header
-
     private var headerView: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text("麺ナビ")
-                    .font(.system(size: 22, weight: .black, design: .monospaced))
-                    .foregroundColor(AppTheme.neonRed)
+                    .font(.system(size: 36, weight: .black, design: .rounded))
+                    .foregroundColor(AppTheme.textPrimary)
+                    .shadow(color: AppTheme.lantern.opacity(0.8), radius: 14)
                 Text(viewModel.timeSlotMessage)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(AppTheme.neonYellow)
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(AppTheme.noodle)
             }
 
             Spacer()
@@ -82,36 +78,23 @@ struct RadarView: View {
                 }
             } label: {
                 Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 20))
-                    .foregroundColor(AppTheme.neonYellow)
-                    .padding(10)
-                    .background(
-                        Circle()
-                            .fill(AppTheme.cardBackground)
-                            .overlay(Circle().stroke(AppTheme.neonYellow.opacity(0.3), lineWidth: 1))
-                    )
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(AppTheme.noodle)
+                    .frame(width: 46, height: 46)
+                    .background(AppTheme.card.opacity(0.86))
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(AppTheme.border, lineWidth: 1))
             }
         }
-        .padding(.horizontal, 20)
-        .padding(.top, 8)
+        .padding(.top, 18)
     }
 
-    // MARK: - Hot shops carousel
-
     private var hotShopsCarousel: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(spacing: 4) {
-                Image(systemName: "flame.fill")
-                    .foregroundColor(AppTheme.neonRed)
-                    .font(.system(size: 12))
-                Text("今うまい店")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundColor(AppTheme.textPrimary)
-            }
-            .padding(.horizontal, 20)
+        VStack(alignment: .leading, spacing: 10) {
+            sectionTitle(icon: "flame.fill", title: "今すぐ行きたい店")
 
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 10) {
+                HStack(spacing: 12) {
                     ForEach(viewModel.hotShops.prefix(5)) { shop in
                         hotShopCard(shop)
                             .onTapGesture {
@@ -121,111 +104,115 @@ struct RadarView: View {
                             }
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.vertical, 2)
             }
         }
-        .padding(.top, 8)
     }
 
     private func hotShopCard(_ shop: RamenShop) -> some View {
-        HStack(spacing: 8) {
-            Text(shop.soupType.icon)
-                .font(.system(size: 24))
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(shop.name)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: shop.soupType.icon)
+                    .foregroundColor(AppTheme.noodle)
+                    .frame(width: 34, height: 34)
+                    .background(AppTheme.lantern.opacity(0.22))
+                    .clipShape(Circle())
+                Spacer()
+                Label("\(shop.walkMinutes)分", systemImage: "figure.walk")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(AppTheme.textPrimary)
-                    .lineLimit(1)
-                Text("徒歩\(shop.walkMinutes)分 | \(shop.soupType.rawValue)")
-                    .font(.system(size: 10))
                     .foregroundColor(AppTheme.textSecondary)
             }
 
-            Spacer(minLength: 0)
+            Text(shop.name)
+                .font(.system(size: 16, weight: .black, design: .rounded))
+                .foregroundColor(AppTheme.textPrimary)
+                .lineLimit(1)
 
-            Text("\(shop.congestionLabel.icon)")
-                .font(.system(size: 16))
+            Text("\(shop.soupType.rawValue) / \(shop.priceRange.rawValue)")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(AppTheme.textSecondary)
+
+            Label(shop.congestionLabel.text, systemImage: shop.congestionLabel.icon)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(congestionColor(shop))
         }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
-        .frame(width: 180)
-        .background(
-            RoundedRectangle(cornerRadius: 10)
-                .fill(AppTheme.cardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(AppTheme.neonRed.opacity(0.2), lineWidth: 1)
-                )
-        )
+        .padding(14)
+        .frame(width: 190, alignment: .leading)
+        .background(cardBackground)
     }
 
-    // MARK: - Radar Circle
+    private var radarPanel: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                sectionTitle(icon: "scope", title: "近くの一杯レーダー")
+                Spacer()
+                Text("\(viewModel.filteredShops.count)件")
+                    .font(.system(size: 13, weight: .black, design: .monospaced))
+                    .foregroundColor(AppTheme.broth)
+            }
+
+            radarCircle
+                .padding(.horizontal, 8)
+
+            Text("点をタップすると、混雑・徒歩時間・味のタイプを確認できます。")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(AppTheme.textSecondary)
+                .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .padding(16)
+        .background(cardBackground)
+    }
 
     private var radarCircle: some View {
         GeometryReader { geo in
             let size = min(geo.size.width, geo.size.height)
             let center = CGPoint(x: size / 2, y: size / 2)
-            let radius = size / 2 - 10
+            let radius = size / 2 - 12
 
             ZStack {
-                // Grid circles
+                Image("ramen-radar")
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: size, height: size)
+                    .clipShape(Circle())
+                    .opacity(0.28)
+
                 ForEach(1..<4) { i in
                     Circle()
-                        .stroke(AppTheme.radarGrid, lineWidth: 1)
+                        .stroke(AppTheme.lantern.opacity(0.18), lineWidth: 1)
                         .frame(width: radius * 2 * CGFloat(i) / 3, height: radius * 2 * CGFloat(i) / 3)
                 }
 
-                // Cross lines
                 Path { path in
                     path.move(to: CGPoint(x: center.x, y: center.y - radius))
                     path.addLine(to: CGPoint(x: center.x, y: center.y + radius))
                     path.move(to: CGPoint(x: center.x - radius, y: center.y))
                     path.addLine(to: CGPoint(x: center.x + radius, y: center.y))
                 }
-                .stroke(AppTheme.radarGrid, lineWidth: 0.5)
+                .stroke(AppTheme.noodle.opacity(0.18), lineWidth: 0.8)
 
-                // Distance labels
-                ForEach(1..<4) { i in
-                    let labelRadius = radius * CGFloat(i) / 3
-                    Text("\(i * 5)min")
-                        .font(.system(size: 9, weight: .medium, design: .monospaced))
-                        .foregroundColor(AppTheme.textSecondary.opacity(0.6))
-                        .position(x: center.x + labelRadius + 2, y: center.y - 8)
-                }
-
-                // Scan sweep
                 AngularGradient(
                     gradient: Gradient(colors: [
-                        AppTheme.neonRed.opacity(0.0),
-                        AppTheme.neonRed.opacity(0.0),
-                        AppTheme.neonRed.opacity(0.05),
-                        AppTheme.neonRed.opacity(0.15),
-                        AppTheme.neonRed.opacity(0.3),
+                        AppTheme.lantern.opacity(0),
+                        AppTheme.lantern.opacity(0.06),
+                        AppTheme.chili.opacity(0.28),
+                        AppTheme.noodle.opacity(0.34)
                     ]),
                     center: .center,
-                    startAngle: .degrees(scanAngle - 60),
+                    startAngle: .degrees(scanAngle - 48),
                     endAngle: .degrees(scanAngle)
                 )
-                .mask(
-                    Circle()
-                        .frame(width: radius * 2, height: radius * 2)
-                )
+                .mask(Circle().frame(width: radius * 2, height: radius * 2))
 
-                // Scan line
                 Path { path in
                     path.move(to: center)
                     let endX = center.x + radius * CGFloat(cos(scanAngle * .pi / 180 - .pi / 2))
                     let endY = center.y + radius * CGFloat(sin(scanAngle * .pi / 180 - .pi / 2))
                     path.addLine(to: CGPoint(x: endX, y: endY))
                 }
-                .stroke(
-                    AppTheme.neonRed.opacity(0.8),
-                    lineWidth: 2
-                )
-                .shadow(color: AppTheme.neonRed, radius: 4)
+                .stroke(AppTheme.noodle.opacity(0.9), lineWidth: 2)
+                .shadow(color: AppTheme.chili, radius: 8)
 
-                // Shop dots
                 ForEach(viewModel.filteredShops) { shop in
                     shopDot(shop: shop, center: center, maxRadius: radius)
                         .onTapGesture {
@@ -235,14 +222,13 @@ struct RadarView: View {
                         }
                 }
 
-                // Center dot (you)
                 Circle()
-                    .fill(AppTheme.neonYellow)
-                    .frame(width: 10, height: 10)
-                    .shadow(color: AppTheme.neonYellow, radius: 6)
+                    .fill(AppTheme.noodle)
+                    .frame(width: 12, height: 12)
+                    .shadow(color: AppTheme.noodle, radius: 9)
                     .overlay(
                         Circle()
-                            .stroke(AppTheme.neonYellow.opacity(0.3), lineWidth: 2)
+                            .stroke(AppTheme.noodle.opacity(0.35), lineWidth: 2)
                             .scaleEffect(pulseScale)
                             .opacity(2 - pulseScale)
                     )
@@ -254,48 +240,78 @@ struct RadarView: View {
     }
 
     private func shopDot(shop: RamenShop, center: CGPoint, maxRadius: CGFloat) -> some View {
-        let normalizedDist = min(shop.distance / 1500, 1.0) // 1500m = max radar range
+        let normalizedDist = min(shop.distance / 1500, 1.0)
         let dotRadius = maxRadius * CGFloat(normalizedDist)
-
-        // Random but stable angle based on shop id
-        let angle = Double(shop.id.hashValue % 360)
+        let angle = Double(abs(shop.name.hashValue) % 360)
         let x = center.x + dotRadius * CGFloat(cos(angle * .pi / 180 - .pi / 2))
         let y = center.y + dotRadius * CGFloat(sin(angle * .pi / 180 - .pi / 2))
-
-        let dotColor: Color = {
-            switch shop.dotColor {
-            case .popular: return AppTheme.neonRed
-            case .light: return AppTheme.neonBlue
-            case .lateNight: return AppTheme.neonYellow
-            }
-        }()
-
-        let congestionGlow = shop.congestion > 0.7
+        let color = dotColor(shop)
 
         return ZStack {
-            // Congestion heatmap glow
-            if congestionGlow {
-                Circle()
-                    .fill(
-                        RadialGradient(
-                            colors: [dotColor.opacity(0.3), dotColor.opacity(0)],
-                            center: .center,
-                            startRadius: 0,
-                            endRadius: 20
-                        )
-                    )
-                    .frame(width: 40, height: 40)
-            }
-
             Circle()
-                .fill(dotColor)
-                .frame(width: 10, height: 10)
-                .shadow(color: dotColor, radius: 4)
+                .fill(color.opacity(0.18))
+                .frame(width: shop.congestion > 0.7 ? 42 : 30, height: shop.congestion > 0.7 ? 42 : 30)
+            Circle()
+                .fill(color)
+                .frame(width: 12, height: 12)
+                .shadow(color: color, radius: 7)
         }
         .position(x: x, y: y)
     }
 
-    // MARK: - Animation
+    private var quickTips: some View {
+        HStack(spacing: 10) {
+            miniStat(title: "空き", value: "\(viewModel.shops.filter { $0.congestion < 0.45 }.count)店", color: AppTheme.teal)
+            miniStat(title: "深夜", value: "\(viewModel.shops.filter { $0.isOpenLateNight }.count)店", color: AppTheme.noodle)
+            miniStat(title: "高評価", value: "\(viewModel.shops.filter { $0.rating >= 4.3 }.count)店", color: AppTheme.lantern)
+        }
+    }
+
+    private func miniStat(title: String, value: String, color: Color) -> some View {
+        VStack(spacing: 4) {
+            Text(value)
+                .font(.system(size: 20, weight: .black, design: .rounded))
+                .foregroundColor(color)
+            Text(title)
+                .font(.system(size: 11, weight: .bold))
+                .foregroundColor(AppTheme.textSecondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .background(cardBackground)
+    }
+
+    private func sectionTitle(icon: String, title: String) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: icon)
+                .foregroundColor(AppTheme.chili)
+            Text(title)
+                .font(.system(size: 15, weight: .black, design: .rounded))
+                .foregroundColor(AppTheme.textPrimary)
+        }
+    }
+
+    private var cardBackground: some View {
+        RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .fill(AppTheme.card.opacity(0.82))
+            .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(AppTheme.border, lineWidth: 1))
+            .shadow(color: AppTheme.lantern.opacity(0.08), radius: 18, y: 10)
+    }
+
+    private func dotColor(_ shop: RamenShop) -> Color {
+        switch shop.dotColor {
+        case .hot: return AppTheme.lantern
+        case .light: return AppTheme.teal
+        case .lateNight: return AppTheme.noodle
+        case .standard: return AppTheme.broth
+        }
+    }
+
+    private func congestionColor(_ shop: RamenShop) -> Color {
+        if shop.congestion > 0.7 { return AppTheme.lantern }
+        if shop.congestion > 0.4 { return AppTheme.broth }
+        return AppTheme.teal
+    }
 
     private func startScanAnimation() {
         withAnimation(.linear(duration: 4).repeatForever(autoreverses: false)) {

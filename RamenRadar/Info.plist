@@ -36,9 +36,9 @@
         <string>UIInterfaceOrientationPortrait</string>
     </array>
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>近くのラーメン店を探すために位置情報を使用します</string>
+    <string>近くのラーメン店を探すために位置情報を使用します。</string>
     <key>NSUserTrackingUsageDescription</key>
-    <string>パーソナライズ広告のためにデータを使用します</string>
+    <string>広告の表示品質を改善するために使用します。</string>
     <key>GADApplicationIdentifier</key>
     <string>ca-app-pub-9404799280370656~5253018214</string>
 </dict>

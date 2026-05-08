@@ -1,30 +1,30 @@
 import SwiftUI
 
 enum AppTheme {
-    // Backgrounds
-    static let darkNavy = Color(hex: "0D1117")
-    static let cardBackground = Color(hex: "161B22")
-    static let cardBackgroundLight = Color(hex: "1C2128")
+    static let ink = Color(hex: "090706")
+    static let charcoal = Color(hex: "15100D")
+    static let card = Color(hex: "221811")
+    static let cardLight = Color(hex: "312118")
 
-    // Accents
-    static let neonRed = Color(hex: "E63946")
-    static let neonYellow = Color(hex: "FFD60A")
-    static let neonBlue = Color(hex: "4CC9F0")
+    static let lantern = Color(hex: "E63820")
+    static let chili = Color(hex: "FF6B2A")
+    static let broth = Color(hex: "D99A3D")
+    static let noodle = Color(hex: "F5D89D")
+    static let teal = Color(hex: "33D6C2")
 
-    // Text
-    static let textPrimary = Color(hex: "F0F0F0")
-    static let textSecondary = Color(hex: "8B949E")
+    static let textPrimary = Color(hex: "FFF7E8")
+    static let textSecondary = Color(hex: "BFAE9C")
+    static let border = Color.white.opacity(0.08)
 
-    // Radar
-    static let radarGreen = Color(hex: "E63946") // Red themed radar
-    static let radarLine = Color(hex: "E63946").opacity(0.8)
-    static let radarGrid = Color(hex: "E63946").opacity(0.15)
-    static let radarGlow = Color(hex: "E63946").opacity(0.3)
+    static let congestionLow = teal
+    static let congestionMid = broth
+    static let congestionHigh = lantern
 
-    // Congestion
-    static let congestionLow = Color(hex: "4CC9F0")
-    static let congestionMid = Color(hex: "FFD60A")
-    static let congestionHigh = Color(hex: "E63946")
+    static let backgroundGradient = LinearGradient(
+        colors: [ink, Color(hex: "160A06"), charcoal],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+    )
 }
 
 extension Color {
