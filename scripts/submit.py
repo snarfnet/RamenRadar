@@ -3,7 +3,8 @@ import jwt, time, requests, json, sys, os
 
 KEY_ID = 'WDXGY9WX55'
 ISSUER = '2be0734f-943a-4d61-9dc9-5d9045c46fec'
-p8 = open('/tmp/asc_key.p8').read()
+p8_path = os.path.expanduser('~/.appstoreconnect/private_keys/AuthKey_WDXGY9WX55.p8')
+p8 = open(p8_path).read()
 BUNDLE_ID = 'com.tokyonasu.RamenRadar'
 
 def make_token():
