@@ -6,7 +6,7 @@ packages:
 options:
   bundleIdPrefix: com.tokyonasu
   deploymentTarget:
-    iOS: "16.0"
+    iOS: "17.0"
   defaultConfig: Release
 
 configs:
@@ -17,7 +17,7 @@ targets:
   RamenRadar:
     type: application
     platform: iOS
-    deploymentTarget: "16.0"
+    deploymentTarget: "17.0"
     sources:
       - path: RamenRadar
         excludes:

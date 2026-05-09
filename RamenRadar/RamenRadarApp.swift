@@ -12,7 +12,7 @@ struct RamenRadarApp: App {
         WindowGroup {
             MainTabView()
                 .preferredColorScheme(.dark)
-                .onChange(of: scenePhase) { newPhase in
+                .onChange(of: scenePhase) { _, newPhase in
                     if newPhase == .active && !attRequested {
                         attRequested = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
