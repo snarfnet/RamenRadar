@@ -67,12 +67,14 @@ def get_bundle_id(identifier):
 
 
 def get_certificate_id():
-    response = api('GET', '/certificates?filter[certificateType]=IOS_DISTRIBUTION&limit=20')
-    certs = response.json().get('data', [])
-    if not certs:
-        fail('No iOS distribution certificate found.')
-    print(f'Using distribution certificate: {certs[0]["id"]}')
-    return certs[0]['id']
+    for certificate_type in ('DISTRIBUTION', 'IOS_DISTRIBUTION'):
+        response = api('GET', f'/certificates?filter[certificateType]={certificate_type}&limit=20')
+        certs = response.json().get('data', [])
+        if certs:
+            cert = certs[0]
+            print(f'Using distribution certificate: {cert["id"]} type={certificate_type}')
+            return cert['id']
+    fail('No distribution certificate found.')
 
 
 def find_profile(name):
