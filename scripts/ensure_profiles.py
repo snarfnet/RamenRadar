@@ -100,6 +100,18 @@ def find_profile(name, bundle_id, profile_type, certificate_id):
     return None
 
 
+def delete_profiles(name):
+    response = api('GET', f'/profiles?filter[name]={name}&limit=20')
+    for profile in response.json().get('data', []):
+        if profile.get('attributes', {}).get('name') != name:
+            continue
+        profile_id = profile['id']
+        delete_response = api('DELETE', f'/profiles/{profile_id}')
+        if delete_response.status_code not in (204, 404):
+            fail(f'Failed to delete stale profile {name}: {profile_id}', delete_response)
+        print(f'Deleted stale profile {name}: {profile_id}')
+
+
 def create_profile(name, bundle_id, profile_type, certificate_id):
     response = api('POST', '/profiles', {
         'data': {
@@ -141,6 +153,7 @@ for name, identifier, profile_type in TARGETS:
     if profile:
         print(f'Found profile {name}: {profile["id"]}')
     else:
+        delete_profiles(name)
         profile = create_profile(name, bundle_id, profile_type, certificate_id)
         print(f'Created profile {name}: {profile["id"]}')
     install_profile(profile)
