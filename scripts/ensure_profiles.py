@@ -46,10 +46,10 @@ def fail(message, response=None):
 
 
 def get_bundle_id(identifier):
-    response = api('GET', f'/bundleIds?filter[identifier]={identifier}&limit=1')
-    data = response.json().get('data', [])
-    if data:
-        return data[0]['id']
+    response = api('GET', f'/bundleIds?filter[identifier]={identifier}&limit=10')
+    for bundle_id in response.json().get('data', []):
+        if bundle_id.get('attributes', {}).get('identifier') == identifier:
+            return bundle_id['id']
 
     response = api('POST', '/bundleIds', {
         'data': {
