@@ -97,6 +97,9 @@ jobs:
         security import cert.p12 -k build.keychain -P "$CERT_PASSWORD" -T /usr/bin/codesign
         security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" build.keychain
         security find-identity -v -p codesigning build.keychain
+        DIST_CERT_SERIAL=$(security find-certificate -c "Apple Distribution" -p build.keychain | openssl x509 -noout -serial | sed 's/^serial=//')
+        echo "DIST_CERT_SERIAL=$DIST_CERT_SERIAL" >> "$GITHUB_ENV"
+        echo "Distribution certificate serial: $DIST_CERT_SERIAL"
         rm cert.p12
 
     - name: Set up ASC API Key

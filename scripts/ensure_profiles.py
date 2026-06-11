@@ -67,20 +67,35 @@ def get_bundle_id(identifier):
 
 
 def get_certificate_id():
+    wanted_serial = os.environ.get('DIST_CERT_SERIAL', '').upper()
     for certificate_type in ('DISTRIBUTION', 'IOS_DISTRIBUTION'):
         response = api('GET', f'/certificates?filter[certificateType]={certificate_type}&limit=20')
         certs = response.json().get('data', [])
-        if certs:
-            cert = certs[0]
+        for cert in certs:
+            serial = cert.get('attributes', {}).get('serialNumber', '').upper()
+            if wanted_serial and serial != wanted_serial:
+                continue
             print(f'Using distribution certificate: {cert["id"]} type={certificate_type}')
             return cert['id']
+    if wanted_serial:
+        fail(f'No App Store Connect distribution certificate matches serial {wanted_serial}.')
     fail('No distribution certificate found.')
 
 
-def find_profile(name):
-    response = api('GET', f'/profiles?filter[name]={name}&limit=10')
+def find_profile(name, bundle_id, profile_type, certificate_id):
+    response = api('GET', f'/profiles?filter[name]={name}&include=bundleId,certificates&limit=20')
     for profile in response.json().get('data', []):
-        if profile['attributes'].get('name') == name:
+        attrs = profile.get('attributes', {})
+        relationships = profile.get('relationships', {})
+        profile_bundle_id = relationships.get('bundleId', {}).get('data', {}).get('id')
+        certs = relationships.get('certificates', {}).get('data', [])
+        certificate_ids = {cert.get('id') for cert in certs}
+        if (
+            attrs.get('name') == name
+            and attrs.get('profileType') == profile_type
+            and profile_bundle_id == bundle_id
+            and certificate_id in certificate_ids
+        ):
             return profile
     return None
 
@@ -122,7 +137,7 @@ def install_profile(profile):
 certificate_id = get_certificate_id()
 for name, identifier, profile_type in TARGETS:
     bundle_id = get_bundle_id(identifier)
-    profile = find_profile(name)
+    profile = find_profile(name, bundle_id, profile_type, certificate_id)
     if profile:
         print(f'Found profile {name}: {profile["id"]}')
     else:
