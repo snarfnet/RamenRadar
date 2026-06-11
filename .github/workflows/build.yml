@@ -119,7 +119,6 @@ jobs:
           -configuration Release \
           -destination "generic/platform=iOS" \
           -archivePath build/RamenRadar.xcarchive \
-          CODE_SIGN_STYLE=Automatic \
           DEVELOPMENT_TEAM=83VGKGSQUH \
           -allowProvisioningUpdates \
           -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_WDXGY9WX55.p8 \
